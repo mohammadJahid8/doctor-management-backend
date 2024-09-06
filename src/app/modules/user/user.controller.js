@@ -81,7 +81,6 @@ const deleteUser = catchAsync(async (req, res) => {
 
 const updateUser = catchAsync(async (req, res) => {
   let updatedData = req.body;
-  console.log({ updatedData });
 
   updatedData = JSON.parse(JSON.stringify(updatedData));
   for (let key in updatedData) {

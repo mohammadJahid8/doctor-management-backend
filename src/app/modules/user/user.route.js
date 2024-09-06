@@ -17,11 +17,7 @@ router.get('/', UserController.getAllUsers);
 
 router.delete('/delete/:id', UserController.deleteUser);
 
-router.patch(
-  '/update/:id',
-  // upload.single('image'),
-  UserController.updateUser,
-);
+router.patch('/update/:id', upload.single('image'), UserController.updateUser);
 
 router.patch(
   '/image/:id',

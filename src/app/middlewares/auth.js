@@ -15,8 +15,6 @@ function auth(...requiredRoles) {
   return (req, res, next) => {
     let token = req.headers.authorization;
 
-    console.log({ token });
-
     if (!token) {
       throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
     }
