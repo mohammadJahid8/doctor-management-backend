@@ -14,7 +14,7 @@ export const resetMail = async (email, link) => {
     to: email,
     subject: `Reset your password`,
     // text: `Please reset your password from the link below: https://tf-front-sigma.vercel.app/reset-password/${link}`,
-    text: `Please reset your password from the link below: http://localhost:5173/reset-password/${link}`,
+    text: `Please reset your password from the link below: http://localhost:3000/reset-password/${link}`,
   };
 
   try {

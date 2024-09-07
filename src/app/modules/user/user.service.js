@@ -6,6 +6,7 @@ import cloudinary from 'cloudinary';
 import config from '../../../config/config.js';
 import jwt from 'jsonwebtoken';
 import { resetMail } from '../../../utils/resetMail.js';
+import bcrypt from 'bcrypt';
 cloudinary.v2.config({
   cloud_name: config.cloud_name,
   api_key: config.api_key,
@@ -129,6 +130,13 @@ const updateUser = async (id, payload, file) => {
     const imageUrl = result.secure_url;
 
     payload.image = imageUrl;
+  }
+
+  if (payload.password) {
+    payload.password = await bcrypt.hash(
+      payload.password,
+      Number(config.bcrypt_salt_rounds),
+    );
   }
 
   const updatedUser = await User.findByIdAndUpdate(id, payload, { new: true });
