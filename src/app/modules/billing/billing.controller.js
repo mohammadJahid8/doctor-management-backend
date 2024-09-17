@@ -11,7 +11,7 @@ const createBilling = catchAsync(async (req, res) => {
     statusCode: result.code || 200,
     success: true,
     message: result.message || '',
-     result.data || null,
+     result.data || null, 
   });
 });
 
@@ -34,7 +34,7 @@ const updateBilling = catchAsync(async (req, res) => {
     statusCode: result.code || 200,
     success: true,
     message: result.message || '',
-     result.data || null,
+    data: result.data || null,
   });
 });
 
