@@ -1,11 +1,23 @@
 const billingService = require('./billing.service');
 
-exports.createBilling = async (req, res) => {
+// ... other functions ...
+
+exports.updateBilling = async (req, res) => {
   try {
-    const billingData = req.body;
-    const createdBilling = await billingService.createBilling(billingData);
-    res.status(201).json(createdBilling);
+    const billingId = req.params.id;
+    const updatedBilling = await billingService.updateBilling(billingId, req.body);
+    res.status(200).json(updatedBilling);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create billing' });
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.deleteBilling = async (req, res) => {
+  try {
+    const billingId = req.params.id;
+    await billingService.deleteBilling(billingId);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

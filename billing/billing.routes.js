@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const billingController = require('./billing.controller');
 
-router.post('/', billingController.createBilling);
+// ... other routes ...
 
-module.exports = router;
+router.put('/:id', billingController.updateBilling);
+router.delete('/:id', billingController.deleteBilling);
+
+module.exports = router; 

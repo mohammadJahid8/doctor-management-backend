@@ -1,6 +1,11 @@
-const Billing = require('./billing.model');
+const { Billing } = require('../models');
 
-exports.createBilling = async (billingData) => {
-  const newBilling = new Billing(billingData);
-  return await newBilling.save();
+// ... other functions ...
+
+exports.updateBilling = async (billingId, billingData) => {
+  return await Billing.findByIdAndUpdate(billingId, billingData, { new: true });
+};
+
+exports.deleteBilling = async (billingId) => {
+  await Billing.findByIdAndDelete(billingId);
 };
