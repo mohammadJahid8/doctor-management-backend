@@ -28,6 +28,13 @@ const userSchema = new Schema(
       required: false,
       default: 'doctor',
     },
+    subscription: {
+      planId: { type: String, required: false },
+      subscriptionId: { type: String, required: false },
+      planName: { type: String, required: false },
+      status: { type: String, required: false },
+      billedAt: { type: Date, required: false },
+    },
     password: {
       type: String,
       required: false,

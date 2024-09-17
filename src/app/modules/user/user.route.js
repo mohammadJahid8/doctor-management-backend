@@ -28,4 +28,7 @@ router.patch(
 router.post('/forgot-password', UserController.forgotPassword);
 router.post('/reset-password', UserController.resetPassword);
 
+router.post('/create-subscription', UserController.createSubscription);
+router.post('/save-subscription/:email', UserController.saveSubscription);
+
 export const UserRoutes = router;

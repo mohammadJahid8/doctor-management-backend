@@ -24,4 +24,7 @@ export default {
   twilio_auth_token: process.env.TWILIO_AUTH_TOKEN,
 
   mail_pass: process.env.MAIL_PASS,
+
+  razorPay_key_id: process.env.RAZOR_PAY_KEY_ID,
+  razorPay_key_secret: process.env.RAZOR_PAY_KEY_SECRET,
 };

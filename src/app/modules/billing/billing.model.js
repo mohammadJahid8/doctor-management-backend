@@ -1,7 +1,13 @@
+
 import { Schema, model } from 'mongoose';
 
 const billingSchema = new Schema(
   {
+    doctor: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
     patientName: {
       type: String,
       required: true,
@@ -10,8 +16,12 @@ const billingSchema = new Schema(
       type: String,
       required: true,
     },
+    email: {
+      type: String,
+      required: true,
+    },
     date: {
-      type: Date,
+      type: String,
       required: true,
     },
     items: [
@@ -26,6 +36,10 @@ const billingSchema = new Schema(
         },
       },
     ],
+    invoice: {
+      invoiceId: { type: String, required: false },
+      invoiceUrl: { type: String, required: false },
+    },
   },
   {
     timestamps: true,

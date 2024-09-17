@@ -135,6 +135,28 @@ const resetPassword = catchAsync(async (req, res) => {
   });
 });
 
+const createSubscription = catchAsync(async (req, res) => {
+  const result = await UserService.createSubscription(req);
+
+  sendResponse(res, {
+    statusCode: result.code || 200,
+    success: true,
+    message: result.message || '',
+    data: result.data || null,
+  });
+});
+
+const saveSubscription = catchAsync(async (req, res) => {
+  const result = await UserService.saveSubscription(req);
+
+  sendResponse(res, {
+    statusCode: result.code || 200,
+    success: true,
+    message: result.message || '',
+    data: result.data || null,
+  });
+});
+
 export const UserController = {
   createGoogleUser,
   signup,
@@ -146,4 +168,6 @@ export const UserController = {
   updateUser,
   forgotPassword,
   resetPassword,
+  createSubscription,
+  saveSubscription,
 };

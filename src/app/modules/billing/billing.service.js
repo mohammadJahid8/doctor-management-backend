@@ -1,10 +1,18 @@
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError.js';
 import { Billing } from './billing.model.js';
+import Razorpay from 'razorpay';
+import config from '../../../config/config.js';
+
+console.log(config.razorPay_key_id);
+
+const rp = new Razorpay({
+  key_id: config.razorPay_key_id,
+  key_secret: config.razorPay_key_secret,
+});
 
 const createBilling = async payload => {
   try {
-    console.log({ payload });
     if (!payload) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'No billing data!');
     }
@@ -14,7 +22,7 @@ const createBilling = async payload => {
     return {
       message: 'Billing created successfully',
       code: 200,
-       billing,
+      billing,
     };
   } catch (error) {
     console.log({ error });
@@ -22,13 +30,13 @@ const createBilling = async payload => {
       return {
         message: error.message,
         code: error.statusCode,
-         null,
+        data: null,
       };
     } else {
       return {
         message: 'Internal server error',
         code: httpStatus.INTERNAL_SERVER_ERROR,
-         null,
+        data: null,
       };
     }
   }
@@ -36,7 +44,6 @@ const createBilling = async payload => {
 
 const getAllBilling = async req => {
   try {
-    console.log(req.query);
     const userId = req?.query?.userId;
     const role = req?.query?.role;
 
@@ -45,20 +52,20 @@ const getAllBilling = async req => {
       return {
         message: 'Billing got successfully',
         code: 200,
-         billing,
+        data: billing,
       };
     } else if (role === 'admin') {
       const billing = await Billing.find();
       return {
         message: 'Billing got successfully',
         code: 200,
-         billing,
+        data: billing,
       };
     } else {
       return {
         message: 'Unauthorized access',
         code: httpStatus.UNAUTHORIZED,
-         null,
+        data: null,
       };
     }
   } catch (error) {
@@ -66,15 +73,68 @@ const getAllBilling = async req => {
       return {
         message: error.message,
         code: error.statusCode,
-         null,
+        data: null,
       };
     } else {
       return {
         message: 'Internal server error',
         code: httpStatus.INTERNAL_SERVER_ERROR,
-         null,
+        data: null,
       };
     }
+  }
+};
+
+const generateInvoice = async billing => {
+  try {
+    const line_items = billing.items.map(item => ({
+      name: item.name,
+      amount: Number(item.amount) * 100,
+    }));
+
+    const fullInvoice = await rp.invoices.create({
+      type: 'invoice',
+      customer: {
+        name: billing.patientName,
+        contact: billing.phoneNumber,
+        email: billing.email,
+      },
+      line_items,
+    });
+
+    if (fullInvoice) {
+      const invoiceData = {
+        invoiceId: fullInvoice.id,
+        invoiceUrl: fullInvoice.short_url,
+      };
+
+      const id = billing._id;
+      await Billing.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            invoice: invoiceData,
+          },
+        },
+        {
+          new: true,
+        },
+      );
+
+      return {
+        message: 'Invoice generated successfully',
+        code: 200,
+        data: invoiceData,
+      };
+    } else {
+      throw new ApiError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        'Cannot generate invoice',
+      );
+    }
+  } catch (error) {
+    console.log('errrror', error);
+    throw new ApiError(error.statusCode, error.error.description);
   }
 };
 
@@ -87,22 +147,14 @@ const updateBilling = async (id, payload) => {
     return {
       message: 'Billing updated successfully',
       code: 200,
-       billing,
+      billing,
     };
   } catch (error) {
-    if (error instanceof ApiError) {
-      return {
-        message: error.message,
-        code: error.statusCode,
-         null,
-      };
-    } else {
-      return {
-        message: 'Internal server error',
-        code: httpStatus.INTERNAL_SERVER_ERROR,
-         null,
-      };
-    }
+    console.log(error);
+    throw new ApiError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'Internal server error',
+    );
   }
 };
 
@@ -112,32 +164,21 @@ const deleteBilling = async id => {
     if (!billing) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Billing not found!');
     }
+
     return {
       message: 'Billing deleted successfully',
       code: 200,
-       null,
+      data: null,
     };
   } catch (error) {
-    if (error instanceof ApiError) {
-      return {
-        message: error.message,
-        code: error.statusCode,
-         null,
-      };
-    } else {
-      return {
-        message: 'Internal server error',
-        code: httpStatus.INTERNAL_SERVER_ERROR,
-         null,
-      };
-    }
+    console.log(error);
   }
 };
-
 
 export const BillingService = {
   createBilling,
   getAllBilling,
   updateBilling,
   deleteBilling,
+  generateInvoice,
 };

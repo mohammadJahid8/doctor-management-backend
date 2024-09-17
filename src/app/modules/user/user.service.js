@@ -7,10 +7,17 @@ import config from '../../../config/config.js';
 import jwt from 'jsonwebtoken';
 import { resetMail } from '../../../utils/resetMail.js';
 import bcrypt from 'bcrypt';
+import Razorpay from 'razorpay';
+
 cloudinary.v2.config({
   cloud_name: config.cloud_name,
   api_key: config.api_key,
   api_secret: config.api_secret,
+});
+
+const rp = new Razorpay({
+  key_id: config.razorPay_key_id,
+  key_secret: config.razorPay_key_secret,
 });
 
 const createGoogleUser = async payload => {
@@ -187,6 +194,108 @@ const resetPassword = async payload => {
 
   return result;
 };
+const createSubscription = async req => {
+  try {
+    const { planId } = req.body;
+
+    console.log({ planId });
+
+    const subscription = await rp.subscriptions.create({
+      plan_id: planId,
+      customer_notify: 1,
+      quantity: 1,
+      total_count: 1,
+    });
+
+    console.log({ subscription });
+
+    return {
+      code: 200,
+      message: 'Subscription created',
+      data: subscription.id,
+    };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      // If it's an instance of ApiError, send the error response
+      return {
+        code: error.statusCode,
+        message: error.message,
+        data: null,
+      };
+    } else {
+      // For other unexpected errors, log the error and send a generic error response
+      console.error('Unexpected error:', error);
+      return {
+        code: httpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal Server Error',
+        data: null,
+      };
+    }
+  }
+};
+
+const saveSubscription = async req => {
+  try {
+    const subscriptionData = req.body;
+
+    console.log({ subscriptionData });
+
+    const { email } = req.params;
+
+    if (!email) {
+      throw new ApiError(500, 'User email is empty');
+    }
+
+    if (!subscriptionData) {
+      throw new ApiError(500, 'No Subscription data!');
+    }
+
+    const targetUser = await User.findOne({
+      email,
+    });
+
+    const now = new Date();
+
+    const updatedSubscription = {
+      ...subscriptionData,
+      billedAt: now,
+    };
+
+    // Update the user's subscription data
+    const updatedUser = await User.findByIdAndUpdate(
+      targetUser._id,
+      {
+        $set: {
+          subscription: updatedSubscription,
+        },
+      },
+      { new: true },
+    );
+
+    return {
+      code: 200,
+      message: 'Subscription Saved',
+      data: updatedUser,
+    };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      // If it's an instance of ApiError, send the error response
+      return {
+        code: error.statusCode,
+        message: error.message,
+        data: null,
+      };
+    } else {
+      // For other unexpected errors, log the error and send a generic error response
+      console.error('Unexpected error:', error);
+      return {
+        code: httpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal Server Error',
+        data: null,
+      };
+    }
+  }
+};
 
 export const UserService = {
   signin,
@@ -199,4 +308,6 @@ export const UserService = {
   updateUser,
   forgotPassword,
   resetPassword,
+  createSubscription,
+  saveSubscription,
 };
