@@ -11,7 +11,7 @@ const createBilling = catchAsync(async (req, res) => {
     statusCode: result.code || 200,
     success: true,
     message: result.message || '',
-    data: result.data || null,
+     result.data || null,
   });
 });
 
@@ -22,11 +22,38 @@ const getAllBilling = catchAsync(async (req, res) => {
     statusCode: result.code || 200,
     success: true,
     message: result.message || '',
-    data: result.data || null,
+     result.data || null,
   });
 });
+
+const updateBilling = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await BillingService.updateBilling(id, req.body);
+
+  sendResponse(res, {
+    statusCode: result.code || 200,
+    success: true,
+    message: result.message || '',
+     result.data || null,
+  });
+});
+
+const deleteBilling = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await BillingService.deleteBilling(id);
+
+  sendResponse(res, {
+    statusCode: result.code || 200,
+    success: true,
+    message: result.message || '',
+     result.data || null,
+  });
+});
+
 
 export const BillingController = {
   createBilling,
   getAllBilling,
+  updateBilling,
+  deleteBilling,
 };

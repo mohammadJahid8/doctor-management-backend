@@ -14,7 +14,7 @@ const createBilling = async payload => {
     return {
       message: 'Billing created successfully',
       code: 200,
-      data: billing,
+       billing,
     };
   } catch (error) {
     console.log({ error });
@@ -22,13 +22,13 @@ const createBilling = async payload => {
       return {
         message: error.message,
         code: error.statusCode,
-        data: null,
+         null,
       };
     } else {
       return {
         message: 'Internal server error',
         code: httpStatus.INTERNAL_SERVER_ERROR,
-        data: null,
+         null,
       };
     }
   }
@@ -45,20 +45,20 @@ const getAllBilling = async req => {
       return {
         message: 'Billing got successfully',
         code: 200,
-        data: billing,
+         billing,
       };
     } else if (role === 'admin') {
       const billing = await Billing.find();
       return {
         message: 'Billing got successfully',
         code: 200,
-        data: billing,
+         billing,
       };
     } else {
       return {
         message: 'Unauthorized access',
         code: httpStatus.UNAUTHORIZED,
-        data: null,
+         null,
       };
     }
   } catch (error) {
@@ -66,21 +66,78 @@ const getAllBilling = async req => {
       return {
         message: error.message,
         code: error.statusCode,
-        data: null,
+         null,
       };
     } else {
       return {
         message: 'Internal server error',
         code: httpStatus.INTERNAL_SERVER_ERROR,
-        data: null,
+         null,
+      };
+    }
+  }
+};
+
+const updateBilling = async (id, payload) => {
+  try {
+    const billing = await Billing.findByIdAndUpdate(id, payload, { new: true });
+    if (!billing) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Billing not found!');
+    }
+    return {
+      message: 'Billing updated successfully',
+      code: 200,
+       billing,
+    };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return {
+        message: error.message,
+        code: error.statusCode,
+         null,
+      };
+    } else {
+      return {
+        message: 'Internal server error',
+        code: httpStatus.INTERNAL_SERVER_ERROR,
+         null,
+      };
+    }
+  }
+};
+
+const deleteBilling = async id => {
+  try {
+    const billing = await Billing.findByIdAndDelete(id);
+    if (!billing) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Billing not found!');
+    }
+    return {
+      message: 'Billing deleted successfully',
+      code: 200,
+       null,
+    };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return {
+        message: error.message,
+        code: error.statusCode,
+         null,
+      };
+    } else {
+      return {
+        message: 'Internal server error',
+        code: httpStatus.INTERNAL_SERVER_ERROR,
+         null,
       };
     }
   }
 };
 
 
-
 export const BillingService = {
   createBilling,
   getAllBilling,
+  updateBilling,
+  deleteBilling,
 };
