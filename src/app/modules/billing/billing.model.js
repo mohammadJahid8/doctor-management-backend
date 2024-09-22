@@ -1,4 +1,3 @@
-
 import { Schema, model } from 'mongoose';
 
 const billingSchema = new Schema(
@@ -21,6 +20,10 @@ const billingSchema = new Schema(
       required: true,
     },
     date: {
+      type: String,
+      required: true,
+    },
+    doctorName: {
       type: String,
       required: true,
     },

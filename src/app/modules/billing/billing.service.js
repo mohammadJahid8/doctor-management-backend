@@ -48,14 +48,14 @@ const getAllBilling = async req => {
     const role = req?.query?.role;
 
     if (role === 'doctor') {
-      const billing = await Billing.find({ doctor: userId }); // Use doctor field for doctor's billings
+      const billing = await Billing.find({ doctor: userId }).populate('doctor');
       return {
         message: 'Billing got successfully',
         code: 200,
         data: billing,
       };
     } else if (role === 'admin') {
-      const billing = await Billing.find();
+      const billing = await Billing.find({}).populate('doctor');
       return {
         message: 'Billing got successfully',
         code: 200,

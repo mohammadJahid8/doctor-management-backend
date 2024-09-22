@@ -17,11 +17,11 @@ const userSchema = new Schema(
     },
     name: {
       type: String,
-      required: true,
+      required: false,
     },
     speciality: {
       type: String,
-      required: true,
+      required: false,
     },
     role: {
       type: String,
@@ -50,7 +50,15 @@ const userSchema = new Schema(
     hospitalName: {
       type: String,
       required: true,
+      unique: true,
     },
+    hospitalAddress: {
+      city: { type: String, required: true },
+      state: { type: String, required: true },
+      pincode: { type: String, required: true },
+      address: { type: String, required: true },
+    },
+
     image: {
       type: String,
       required: false,
