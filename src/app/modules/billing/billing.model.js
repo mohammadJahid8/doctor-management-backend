@@ -15,10 +15,31 @@ const billingSchema = new Schema(
       type: String,
       required: true,
     },
-    email: {
+    age: {
+      type: Number,
+      required: true,
+    },
+    address: {
       type: String,
       required: true,
     },
+    roomNo: {
+      type: String,
+      required: false,
+    },
+    admissionNo: {
+      type: String,
+      required: false,
+    },
+    dateOfAdmission: {
+      type: String,
+      required: false,
+    },
+    dateOfDischarge: {
+      type: String,
+      required: false,
+    },
+
     date: {
       type: String,
       required: true,
