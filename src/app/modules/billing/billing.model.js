@@ -15,13 +15,17 @@ const billingSchema = new Schema(
       type: String,
       required: true,
     },
+    gstTax: {
+      type: String,
+      required: true,
+    },
     age: {
       type: Number,
-      required: true,
+      required: false,
     },
     address: {
       type: String,
-      required: true,
+      required: false,
     },
     roomNo: {
       type: String,

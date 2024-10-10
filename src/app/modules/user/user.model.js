@@ -39,6 +39,10 @@ const userSchema = new Schema(
       type: String,
       required: false,
     },
+    gstin: {
+      type: String,
+      required: false,
+    },
     resetPasswordToken: {
       type: String,
       required: false,
