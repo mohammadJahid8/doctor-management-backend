@@ -68,6 +68,10 @@ const userSchema = new Schema(
       required: false,
       default: 'https://i.ibb.co/mcHGwPy/dummy.jpg',
     },
+    mapUrl: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,
