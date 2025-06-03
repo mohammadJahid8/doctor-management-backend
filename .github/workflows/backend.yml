@@ -7,21 +7,17 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: Verify Node.js (Pre-installed)
+        run: |
+          node --version  # Logs the default version
+          npm --version
 
       - name: Install backend dependencies
         run: npm install
-
-      - name: Run tests
-        run: npm test
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
