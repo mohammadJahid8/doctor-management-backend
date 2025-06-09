@@ -17,10 +17,10 @@ const app = express();
 // app.use(cors());
 app.use(
   cors({
-    origin: '*', // or your frontend domain
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
+    // credentials: true,
   }),
 );
 app.options('*', cors());
