@@ -255,46 +255,28 @@ const saveSubscription = async req => {
     });
 
     const now = new Date();
-    
-    if (subscriptionData.planId === 'free-plan') {
-      const updatedUser = await User.findByIdAndUpdate(
-        targetUser._id,
-        {
-          $set: {
-            unsubscribed: {
-              ...subscriptionData,
-              optedAt: now,
-            },
-            subscription: null, // clear any existing paid subscription
-          },
+
+    const updatedSubscription = {
+      ...subscriptionData,
+      billedAt: now,
+    };
+
+    // Update the user's subscription data
+    const updatedUser = await User.findByIdAndUpdate(
+      targetUser._id,
+      {
+        $set: {
+          subscription: updatedSubscription,
         },
-        { new: true }
-      );
-      return {
-        code: 200,
-        message: 'Free plan saved as unsubscribed',
-        data: updatedUser,
-      };
-    } else {
-      const updatedUser = await User.findByIdAndUpdate(
-        targetUser._id,
-        {
-          $set: {
-            subscription: {
-              ...subscriptionData,
-              billedAt: now,
-            },
-            unsubscribed: null, // clear any previous free plan
-          },
-        },
-        { new: true }
-      );
-      return {
-        code: 200,
-        message: 'Paid Subscription Saved',
-        data: updatedUser,
-      };
-    }
+      },
+      { new: true },
+    );
+
+    return {
+      code: 200,
+      message: 'Subscription Saved',
+      data: updatedUser,
+    };
   } catch (error) {
     if (error instanceof ApiError) {
       // If it's an instance of ApiError, send the error response
