@@ -17,7 +17,8 @@ const billingSchema = new Schema(
     },
     gstTax: {
       type: String,
-      required: true,
+      required: false,
+      default: 0,
     },
     age: {
       type: Number,
