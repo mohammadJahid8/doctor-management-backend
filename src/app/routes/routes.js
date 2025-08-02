@@ -5,7 +5,6 @@ import { ArticleRoutes } from '../modules/article/article.routes.js';
 import { BillingRoutes } from '../modules/billing/billing.routes.js';
 import { ReviewRoutes } from '../modules/review/review.routes.js';
 import { advertisementRoutes } from '../modules/advertisement/advertisement.routes.js';
-import { LlamaRoutes } from '../modules/llama/llama.routes.js';
 
 const router = express.Router();
 
