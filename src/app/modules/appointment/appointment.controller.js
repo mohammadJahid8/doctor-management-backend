@@ -65,10 +65,23 @@ const deleteAppointment = catchAsync(async (req, res) => {
   });
 });
 
+const completeAppointment = catchAsync(async (req, res) => {
+  const result = await AppointmentService.completeAppointment(req.params.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Appointment marked as completed and WhatsApp message sent',
+    data: result,
+  });
+});
+
+
 export const AppointmentController = {
   createAppointment,
   getAllAppointments,
   deleteAppointment,
   updateAppointment,
   getAppointmentById,
+  completeAppointment,
 };

@@ -29,6 +29,12 @@ const appointmentSchema = new Schema(
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+      enum: ['pending', 'completed'],
+      default: 'pending',
+    },
+
   },
   {
     timestamps: true,
