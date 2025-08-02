@@ -2,7 +2,11 @@ import axios from 'axios';
 import { ChromaClient } from 'chromadb';
 import { embedWebsiteContent } from './rag.js';
 
-const client = new ChromaClient({ path: 'http://localhost:8000' });
+const client = new ChromaClient({
+  host: 'localhost',
+  port: 8000,
+  ssl: false
+});
 const COLLECTION_NAME = 'docalert-website';
 
 export const LlamaController = {
