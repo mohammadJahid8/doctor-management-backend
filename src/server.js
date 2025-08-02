@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+globalThis.File = class File {};
 import mongoose from 'mongoose';
 
 import config from './config/config.js';
