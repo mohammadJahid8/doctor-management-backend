@@ -2,10 +2,13 @@ import axios from 'axios';
 import { ChromaClient } from 'chromadb';
 import { embedWebsiteContent } from './rag.js';
 
+const { ChromaClient } = require('chromadb');
+
+// For ChromaDB v2.4.0+ use this format:
 const client = new ChromaClient({
-  host: 'localhost',
+  host: "localhost",
   port: 8000,
-  ssl: false
+  path: ""  // Leave empty for v2 API
 });
 const COLLECTION_NAME = 'docalert-website';
 
