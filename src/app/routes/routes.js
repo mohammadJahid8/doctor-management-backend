@@ -34,10 +34,6 @@ const moduleRoutes = [
     path: '/advertisement',
     route: advertisementRoutes,
   },
-  {
-    path: '/llama',
-    route: LlamaRoutes,
-  },
 ];
 
 moduleRoutes?.forEach(route => router.use(route.path, route.route));
