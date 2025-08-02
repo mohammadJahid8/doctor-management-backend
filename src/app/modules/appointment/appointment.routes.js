@@ -8,7 +8,6 @@ router.get('/single/:id', AppointmentController.getAppointmentById);
 router.get('/', AppointmentController.getAllAppointments);
 
 router.patch('/update/:id', AppointmentController.updateAppointment);
-router.patch('/complete/:id', AppointmentController.completeAppointment);
 router.delete('/delete/:id', AppointmentController.deleteAppointment);
 
 export const AppointmentRoutes = router;

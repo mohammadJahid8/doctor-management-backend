@@ -1,7 +1,6 @@
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError.js';
 import { Appointment } from './appointment.model.js';
-import { sendWhatsAppMessage } from '../../../utils/sendWhatsApp.js';
 
 import mongoose from 'mongoose';
 
@@ -52,33 +51,10 @@ const deleteAppointment = async id => {
   return result;
 };
 
-const completeAppointment = async id => {
-  const appointment = await Appointment.findById(id);
-  if (!appointment) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Appointment not found');
-  }
-
-  if (appointment.status === 'completed') {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Appointment already completed');
-  }
-
-  appointment.status = 'completed';
-  await appointment.save();
-
-  // Send WhatsApp message
-  const message = `Hi ${appointment.patientName}, your appointment with Dr. ${appointment.doctorName} has been marked as completed. Thank you for visiting DocAlert!`;
-
-  await sendWhatsAppMessage(appointment.phone, message);
-
-  return appointment;
-};
-
-
 export const AppointmentService = {
   createAppointment,
   getAllAppointments,
   deleteAppointment,
   updateAppointment,
   getAppointmentById,
-  completeAppointment,
 };
