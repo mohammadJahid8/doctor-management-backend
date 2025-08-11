@@ -1,6 +1,8 @@
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError.js';
 import { Appointment } from './appointment.model.js';
+import { User } from '../user/user.model.js';
+import { sendWhatsAppTemplate } from '../../../utils/sendWhatsApp.js';
 
 import mongoose from 'mongoose';
 
@@ -51,10 +53,49 @@ const deleteAppointment = async id => {
   return result;
 };
 
+const completeAppointment = async id => {
+  const appointment = await Appointment.findById(id);
+  if (!appointment) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Appointment not found');
+  }
+
+  if (appointment.status === 'completed') {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Appointment already completed');
+  }
+
+  // Get doctor info for mapUrl
+  const doctor = await User.findById(appointment.doctor);
+  if (!doctor) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Doctor not found');
+  }
+
+  appointment.status = 'completed';
+
+  // WhatsApp template variables
+  const templateSid = process.env.TWILIO_TEMPLATE_SID; // Set this in your .env
+  const templateParams = {
+    1: appointment.patientName,
+    2: appointment.doctorName,
+    3: doctor.mapUrl || 'No review link available'
+  };
+
+  // Send WhatsApp template message
+  const waRes = await sendWhatsAppTemplate(appointment.phone, templateSid, templateParams);
+
+  // Optionally, save message SID and status to appointment
+  appointment.whatsappMessageSid = waRes.sid;
+  appointment.whatsappStatus = waRes.status;
+  await appointment.save();
+
+  return appointment;
+};
+
+
 export const AppointmentService = {
   createAppointment,
   getAllAppointments,
   deleteAppointment,
   updateAppointment,
   getAppointmentById,
+  completeAppointment,
 };
