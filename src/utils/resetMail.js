@@ -1,27 +1,8 @@
-import nodemailer from 'nodemailer';
+// This file is now deprecated. Use the new emailService.js instead.
+// Keeping this for backward compatibility
+
+import { sendPasswordResetEmail } from './emailService.js';
 
 export const resetMail = async (email, link) => {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'Reachoutpro.ai@gmail.com',
-      pass: 'fhtkcqbdluziedjm',
-    },
-  });
-
-  const mailOptions = {
-    from: 'Reachoutpro.ai@gmail.com',
-    to: email,
-    subject: `Reset your password`,
-    text: `Please reset your password from the link below: https://www.docalert.in/reset-password/${link}`,
-    // text: `Please reset your password from the link below: http://localhost:3000/reset-password/${link}`,
-  };
-
-  try {
-    const result = await transporter.sendMail(mailOptions);
-
-    return result;
-  } catch (error) {
-    console.log('Something went wrong while sending mail', error);
-  }
+  return sendPasswordResetEmail(email, link);
 };

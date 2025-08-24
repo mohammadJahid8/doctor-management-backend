@@ -1,17 +1,18 @@
-require('dotenv').config();
-const { MongoClient, ObjectId } = require('mongodb');
-const twilio = require('twilio');
-const moment = require('moment');
+
+import twilio from 'twilio';
+import moment from 'moment';
+import { Appointment } from './src/app/modules/appointment/appointment.model';
+import { User } from './src/app/modules/user/user.model';
+import config from './src/config/config';
+
+
 
 // Twilio setup
 const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
+  config.twilio_account_sid,
+  config.twilio_auth_token
 );
 
-// MongoDB setup
-const mongoUri = process.env.DATABASE_URL;
-const dbName = 'doctor-management';
 
 // Static Telugu audio files
 const audioUrls = {
@@ -22,18 +23,14 @@ const audioUrls = {
 };
 
 async function runReminderCalls() {
-  const clientDB = new MongoClient(mongoUri);
-  await clientDB.connect();
-  const db = clientDB.db(dbName);
-  const appointments = db.collection('appointments');
-  const users = db.collection('users');
+
 
   const tomorrow = moment().add(1, 'days').format('MMMM Do, YYYY');
 
-  const results = await appointments.find({ nextAppointmentDate: tomorrow }).toArray();
+  const results = await Appointment.find({ nextAppointmentDate: tomorrow }).toArray();
 
   for (const appointment of results) {
-    const doctor = await users.findOne({ _id: new ObjectId(appointment.doctor) });
+    const doctor = await User.findOne({ _id: appointment.doctor });
     if (!doctor) {
       console.warn(`⚠️ Doctor not found for appointment: ${appointment._id}`);
       continue;
@@ -47,8 +44,8 @@ async function runReminderCalls() {
     console.log(`📞 Calling ${phone} | Patient: ${patientName} | Doctor: ${doctorName}`);
 
     const response = new twilio.twiml.VoiceResponse();
-    
-    if(state === 'andhra pradesh' || state === 'telangana'){
+
+    if (state === 'andhra pradesh' || state === 'telangana') {
       response.play(audioUrls.hello);
       response.say({ voice: 'Polly.Aditi', language: 'en-IN' }, patientName);
       response.play(audioUrls.reminder);
@@ -73,7 +70,7 @@ async function runReminderCalls() {
       const call = await client.calls.create({
         twiml: response.toString(),
         to: phone,
-        from: process.env.TWILIO_PHONE
+        from: config.twilio_phone
       });
       console.log(`✅ Call sent to ${phone}: ${call.sid}`);
     } catch (err) {
@@ -83,15 +80,15 @@ async function runReminderCalls() {
     await sendWhatsAppReminder(phone, patientName, doctorName, tomorrow);
   }
 
-  await clientDB.close();
+
 }
 
 async function sendWhatsAppReminder(phone, patientName, doctorName, appointmentDate) {
   try {
     const message = await client.messages.create({
-      from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`, // Your approved WhatsApp number
+      from: `whatsapp:${config.twilio_whatsapp_number}`, // Your approved WhatsApp number
       to: `whatsapp:${phone}`,
-      contentSid: process.env.WHATSAPP_TEMPLATE_SID, // SID from Twilio Content Template Builder
+      contentSid: config.whatsapp_template_sid, // SID from Twilio Content Template Builder
       contentVariables: JSON.stringify({
         1: patientName,
         2: doctorName,

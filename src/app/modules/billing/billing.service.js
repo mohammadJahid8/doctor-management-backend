@@ -1,15 +1,15 @@
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError.js';
 import { Billing } from './billing.model.js';
-import Razorpay from 'razorpay';
-import config from '../../../config/config.js';
+// import Razorpay from 'razorpay';
+// import config from '../../../config/config.js';
 
-console.log(config.razorPay_key_id);
+// console.log(config.razorPay_key_id);
 
-const rp = new Razorpay({
-  key_id: config.razorPay_key_id,
-  key_secret: config.razorPay_key_secret,
-});
+// const rp = new Razorpay({
+//   key_id: config.razorPay_key_id,
+//   key_secret: config.razorPay_key_secret,
+// });
 
 const createBilling = async payload => {
   try {
@@ -85,58 +85,58 @@ const getAllBilling = async req => {
   }
 };
 
-const generateInvoice = async billing => {
-  try {
-    const line_items = billing.items.map(item => ({
-      name: item.name,
-      amount: Number(item.amount) * 100,
-    }));
+// const generateInvoice = async billing => {
+//   try {
+//     const line_items = billing.items.map(item => ({
+//       name: item.name,
+//       amount: Number(item.amount) * 100,
+//     }));
 
-    const fullInvoice = await rp.invoices.create({
-      type: 'invoice',
-      customer: {
-        name: billing.patientName,
-        contact: billing.phoneNumber,
-        email: billing.email,
-      },
-      line_items,
-    });
+//     const fullInvoice = await rp.invoices.create({
+//       type: 'invoice',
+//       customer: {
+//         name: billing.patientName,
+//         contact: billing.phoneNumber,
+//         email: billing.email,
+//       },
+//       line_items,
+//     });
 
-    if (fullInvoice) {
-      const invoiceData = {
-        invoiceId: fullInvoice.id,
-        invoiceUrl: fullInvoice.short_url,
-      };
+//     if (fullInvoice) {
+//       const invoiceData = {
+//         invoiceId: fullInvoice.id,
+//         invoiceUrl: fullInvoice.short_url,
+//       };
 
-      const id = billing._id;
-      await Billing.findByIdAndUpdate(
-        id,
-        {
-          $set: {
-            invoice: invoiceData,
-          },
-        },
-        {
-          new: true,
-        },
-      );
+//       const id = billing._id;
+//       await Billing.findByIdAndUpdate(
+//         id,
+//         {
+//           $set: {
+//             invoice: invoiceData,
+//           },
+//         },
+//         {
+//           new: true,
+//         },
+//       );
 
-      return {
-        message: 'Invoice generated successfully',
-        code: 200,
-        data: invoiceData,
-      };
-    } else {
-      throw new ApiError(
-        httpStatus.INTERNAL_SERVER_ERROR,
-        'Cannot generate invoice',
-      );
-    }
-  } catch (error) {
-    console.log('errrror', error);
-    throw new ApiError(error.statusCode, error.error.description);
-  }
-};
+//       return {
+//         message: 'Invoice generated successfully',
+//         code: 200,
+//         data: invoiceData,
+//       };
+//     } else {
+//       throw new ApiError(
+//         httpStatus.INTERNAL_SERVER_ERROR,
+//         'Cannot generate invoice',
+//       );
+//     }
+//   } catch (error) {
+//     console.log('errrror', error);
+//     throw new ApiError(error.statusCode, error.error.description);
+//   }
+// };
 
 const updateBilling = async (id, payload) => {
   try {
@@ -180,5 +180,5 @@ export const BillingService = {
   getAllBilling,
   updateBilling,
   deleteBilling,
-  generateInvoice,
+  // generateInvoice,
 };

@@ -7,7 +7,8 @@ import config from '../../../config/config.js';
 import jwt from 'jsonwebtoken';
 import { resetMail } from '../../../utils/resetMail.js';
 import bcrypt from 'bcrypt';
-import Razorpay from 'razorpay';
+import { Referral } from '../referral/referral.model.js';
+// import Razorpay from 'razorpay';
 
 cloudinary.v2.config({
   cloud_name: config.cloud_name,
@@ -15,10 +16,10 @@ cloudinary.v2.config({
   api_secret: config.api_secret,
 });
 
-const rp = new Razorpay({
-  key_id: config.razorPay_key_id,
-  key_secret: config.razorPay_key_secret,
-});
+// const rp = new Razorpay({
+//   key_id: config.razorPay_key_id,
+//   key_secret: config.razorPay_key_secret,
+// });
 
 const createGoogleUser = async payload => {
   const { email } = payload;
@@ -87,7 +88,7 @@ const signin = async payload => {
 const getUserProfile = async email => {
   const result = await User.findOne({
     email,
-  });
+  }).populate('referral');
 
   return result;
 };
@@ -97,7 +98,7 @@ const getAllUsers = async role => {
   if (role) query = { role };
   else query = {};
 
-  const admins = await User.find(query);
+  const admins = await User.find(query).populate('referral');
   return admins;
 };
 
@@ -154,6 +155,35 @@ const updateUser = async (id, payload, file) => {
 
   return updatedUser;
 };
+const activateReferral = async (email, referralCode) => {
+
+  const referral = await Referral.findOne({ code: referralCode });
+
+  if (!referral) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid referral code');
+  }
+  if (referral?.isUsed) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Referral code already used');
+  }
+
+  const user = await User.findOne({ email })
+
+  if (referral.email !== user?.email) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'This Referral Code is not assigned to you!');
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(user._id, { referral: referral._id }, { new: true });
+
+
+  // update the referral isUsed
+  await Referral.findByIdAndUpdate(referral._id, { isUsed: true });
+
+  if (!updatedUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User not found');
+  }
+
+  return updatedUser;
+};
 
 const forgotPassword = async payload => {
   const { email } = payload;
@@ -194,108 +224,108 @@ const resetPassword = async payload => {
 
   return result;
 };
-const createSubscription = async req => {
-  try {
-    const { planId } = req.body;
+// const createSubscription = async req => {
+//   try {
+//     const { planId } = req.body;
 
-    console.log({ planId });
+//     console.log({ planId });
 
-    const subscription = await rp.subscriptions.create({
-      plan_id: planId,
-      customer_notify: 1,
-      quantity: 1,
-      total_count: 1,
-    });
+//     const subscription = await rp.subscriptions.create({
+//       plan_id: planId,
+//       customer_notify: 1,
+//       quantity: 1,
+//       total_count: 1,
+//     });
 
-    console.log({ subscription });
+//     console.log({ subscription });
 
-    return {
-      code: 200,
-      message: 'Subscription created',
-      data: subscription.id,
-    };
-  } catch (error) {
-    if (error instanceof ApiError) {
-      // If it's an instance of ApiError, send the error response
-      return {
-        code: error.statusCode,
-        message: error.message,
-        data: null,
-      };
-    } else {
-      // For other unexpected errors, log the error and send a generic error response
-      console.error('Unexpected error:', error);
-      return {
-        code: httpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal Server Error',
-        data: null,
-      };
-    }
-  }
-};
+//     return {
+//       code: 200,
+//       message: 'Subscription created',
+//       data: subscription.id,
+//     };
+//   } catch (error) {
+//     if (error instanceof ApiError) {
+//       // If it's an instance of ApiError, send the error response
+//       return {
+//         code: error.statusCode,
+//         message: error.message,
+//         data: null,
+//       };
+//     } else {
+//       // For other unexpected errors, log the error and send a generic error response
+//       console.error('Unexpected error:', error);
+//       return {
+//         code: httpStatus.INTERNAL_SERVER_ERROR,
+//         message: 'Internal Server Error',
+//         data: null,
+//       };
+//     }
+//   }
+// };
 
-const saveSubscription = async req => {
-  try {
-    const subscriptionData = req.body;
+// const saveSubscription = async req => {
+//   try {
+//     const subscriptionData = req.body;
 
-    console.log({ subscriptionData });
+//     console.log({ subscriptionData });
 
-    const { email } = req.params;
+//     const { email } = req.params;
 
-    if (!email) {
-      throw new ApiError(500, 'User email is empty');
-    }
+//     if (!email) {
+//       throw new ApiError(500, 'User email is empty');
+//     }
 
-    if (!subscriptionData) {
-      throw new ApiError(500, 'No Subscription data!');
-    }
+//     if (!subscriptionData) {
+//       throw new ApiError(500, 'No Subscription data!');
+//     }
 
-    const targetUser = await User.findOne({
-      email,
-    });
+//     const targetUser = await User.findOne({
+//       email,
+//     });
 
-    const now = new Date();
+//     const now = new Date();
 
-    const updatedSubscription = {
-      ...subscriptionData,
-      billedAt: now,
-    };
+//     const updatedSubscription = {
+//       ...subscriptionData,
+//       billedAt: now,
+//     };
 
-    // Update the user's subscription data
-    const updatedUser = await User.findByIdAndUpdate(
-      targetUser._id,
-      {
-        $set: {
-          subscription: updatedSubscription,
-        },
-      },
-      { new: true },
-    );
+//     // Update the user's subscription data
+//     const updatedUser = await User.findByIdAndUpdate(
+//       targetUser._id,
+//       {
+//         $set: {
+//           subscription: updatedSubscription,
+//         },
+//       },
+//       { new: true },
+//     );
 
-    return {
-      code: 200,
-      message: 'Subscription Saved',
-      data: updatedUser,
-    };
-  } catch (error) {
-    if (error instanceof ApiError) {
-      // If it's an instance of ApiError, send the error response
-      return {
-        code: error.statusCode,
-        message: error.message,
-        data: null,
-      };
-    } else {
-      // For other unexpected errors, log the error and send a generic error response
-      console.error('Unexpected error:', error);
-      return {
-        code: httpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal Server Error',
-        data: null,
-      };
-    }
-  }
-};
+//     return {
+//       code: 200,
+//       message: 'Subscription Saved',
+//       data: updatedUser,
+//     };
+//   } catch (error) {
+//     if (error instanceof ApiError) {
+//       // If it's an instance of ApiError, send the error response
+//       return {
+//         code: error.statusCode,
+//         message: error.message,
+//         data: null,
+//       };
+//     } else {
+//       // For other unexpected errors, log the error and send a generic error response
+//       console.error('Unexpected error:', error);
+//       return {
+//         code: httpStatus.INTERNAL_SERVER_ERROR,
+//         message: 'Internal Server Error',
+//         data: null,
+//       };
+//     }
+//   }
+// };
 
 export const UserService = {
   signin,
@@ -308,6 +338,7 @@ export const UserService = {
   updateUser,
   forgotPassword,
   resetPassword,
-  createSubscription,
-  saveSubscription,
+  activateReferral,
+  // createSubscription,
+  // saveSubscription,
 };

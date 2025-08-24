@@ -157,6 +157,19 @@ const saveSubscription = catchAsync(async (req, res) => {
   });
 });
 
+const activateReferral = catchAsync(async (req, res) => {
+  const { referralCode } = req.body;
+
+  const result = await UserService.activateReferral(req.user.email, referralCode);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Referral activated successfully!',
+    data: result,
+  });
+});
+
 export const UserController = {
   createGoogleUser,
   signup,
@@ -170,4 +183,5 @@ export const UserController = {
   resetPassword,
   createSubscription,
   saveSubscription,
+  activateReferral,
 };

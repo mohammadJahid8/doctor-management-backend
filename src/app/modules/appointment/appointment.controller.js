@@ -3,6 +3,7 @@
 import httpStatus from 'http-status';
 import catchAsync from '../../../shared/catchAsync.js';
 import sendResponse from '../../../shared/sendResponse.js';
+import pick from '../../../shared/pick.js';
 import { AppointmentService } from './appointment.service.js';
 
 const createAppointment = catchAsync(async (req, res) => {
@@ -17,16 +18,21 @@ const createAppointment = catchAsync(async (req, res) => {
 });
 
 const getAllAppointments = catchAsync(async (req, res) => {
+  const filters = pick(req.query, ['dateFilter', 'status', 'doctorId', 'patientName']);
+  const paginationOptions = pick(req.query, ['page', 'limit', 'sortBy', 'sortOrder']);
+
   const result = await AppointmentService.getAllAppointments(
-    req.query.user,
-    req.query.role,
+    req.user,
+    filters,
+    paginationOptions
   );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'All Appointments got!',
-    data: result,
+    message: 'Appointments retrieved successfully!',
+    meta: result.meta,
+    data: result.data,
   });
 });
 const getAppointmentById = catchAsync(async (req, res) => {

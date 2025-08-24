@@ -21,6 +21,7 @@ function auth(...requiredRoles) {
 
     try {
       const verifiedUser = jwtHelpers.verifyToken(token);
+      console.log('🚀 ~ auth ~ verifiedUser:', verifiedUser)
 
       if (requiredRoles.includes(verifiedUser.role)) {
         req.user = verifiedUser;

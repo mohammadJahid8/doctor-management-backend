@@ -1,7 +1,8 @@
 import twilio from 'twilio';
+import config from '../config/config.js';
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
+const accountSid = config.twilio_account_sid;
+const authToken = config.twilio_auth_token;
 const fromWhatsAppNumber = 'whatsapp:+918790986015'; // Twilio sandbox number
 
 const client = twilio(accountSid, authToken);

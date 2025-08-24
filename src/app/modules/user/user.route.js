@@ -15,13 +15,16 @@ router.get('/profile', auth('doctor', 'admin'), UserController.getUserProfile);
 
 router.get('/', UserController.getAllUsers);
 
-router.delete('/delete/:id', UserController.deleteUser);
+router.delete('/delete/:id', auth('doctor', 'admin'), UserController.deleteUser);
 
-router.patch('/update/:id', upload.single('image'), UserController.updateUser);
+router.patch('/update/:id', auth('doctor', 'admin'), upload.single('image'), UserController.updateUser);
+
+router.patch('/activate-referral', auth('doctor', 'admin'), UserController.activateReferral);
 
 router.patch(
   '/image/:id',
   // upload.single('image'),
+  auth('doctor', 'admin'),
   UserController.updateUserImage,
 );
 

@@ -5,7 +5,7 @@
  */
 
 import bcrypt from 'bcrypt';
-import { Schema, model } from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
 import config from '../../../config/config.js';
 
 const userSchema = new Schema(
@@ -28,12 +28,10 @@ const userSchema = new Schema(
       required: false,
       default: 'doctor',
     },
-    subscription: {
-      planId: { type: String, required: false },
-      subscriptionId: { type: String, required: false },
-      planName: { type: String, required: false },
-      status: { type: String, required: false },
-      billedAt: { type: Date, required: false },
+    referral: {
+      type: Types.ObjectId,
+      ref: 'Referral',
+      required: false,
     },
     password: {
       type: String,
@@ -54,7 +52,7 @@ const userSchema = new Schema(
     hospitalName: {
       type: String,
       required: true,
-      unique: true,
+      // unique: true,
     },
     hospitalAddress: {
       city: { type: String, required: true },
