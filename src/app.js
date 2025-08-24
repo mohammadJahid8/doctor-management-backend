@@ -6,6 +6,7 @@ import httpStatus from 'http-status';
 
 import routes from './app/routes/routes.js';
 import globalErrorHandler from './app/middlewares/globalErrorHandler.js';
+import { sendWhatsAppReminder } from '../reminderCall.js';
 
 const app = express();
 
@@ -18,7 +19,7 @@ const app = express();
 app.use(
   cors({
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','PATCH'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     // credentials: true,
   }),
@@ -35,6 +36,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/v1', routes);
 
 app.get('/', (req, res) => {
+  res.send('Welcome to doctor management server !');
+});
+app.get('/test', async (req, res) => {
+  await sendWhatsAppReminder("+8801633909408", "Jahid", "Dr. Jahid", "2025-08-25")
   res.send('Welcome to doctor management server !');
 });
 

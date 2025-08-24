@@ -1,9 +1,9 @@
 
 import twilio from 'twilio';
 import moment from 'moment';
-import { Appointment } from './src/app/modules/appointment/appointment.model';
-import { User } from './src/app/modules/user/user.model';
-import config from './src/config/config';
+import { Appointment } from './src/app/modules/appointment/appointment.model.js';
+import { User } from './src/app/modules/user/user.model.js';
+import config from './src/config/config.js';
 
 
 
@@ -27,7 +27,7 @@ async function runReminderCalls() {
 
   const tomorrow = moment().add(1, 'days').format('MMMM Do, YYYY');
 
-  const results = await Appointment.find({ nextAppointmentDate: tomorrow }).toArray();
+  const results = await Appointment.find({ nextAppointmentDate: tomorrow });
 
   for (const appointment of results) {
     const doctor = await User.findOne({ _id: appointment.doctor });
@@ -83,8 +83,9 @@ async function runReminderCalls() {
 
 }
 
-async function sendWhatsAppReminder(phone, patientName, doctorName, appointmentDate) {
+export async function sendWhatsAppReminder(phone, patientName, doctorName, appointmentDate) {
   try {
+    console.log({ phone, patientName, doctorName, appointmentDate })
     const message = await client.messages.create({
       from: `whatsapp:${config.twilio_whatsapp_number}`, // Your approved WhatsApp number
       to: `whatsapp:${phone}`,
