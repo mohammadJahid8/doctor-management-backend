@@ -15,6 +15,11 @@ const referralSchema = new Schema(
       type: String,
       required: true,
     },
+    price: {
+      type: Number,
+      required: false,
+
+    },
     validUntil: {
       type: Date,
       required: true,
